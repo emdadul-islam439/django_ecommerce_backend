@@ -1,0 +1,355 @@
+## Enable Virutal Environment
+    -> go to 'project's' root folder
+        * "cd 01_flask_to_do_cwh"
+    -> install vicrutal Environment
+        * "pip install virtualenv"
+    -> create virtual Environment
+        * "python3 -m venv virtualEnv"
+    -> activate virtual Environment
+        * "source virtualEnv/bin/activate"
+
+## add .gitignore file
+    -> add different files/folder
+        * __pycache__
+        * virtualEnv
+        * .DS_Store
+
+## Create requirements.txt file
+    -> if install any module/library using 'pip install', insert it's name
+        * django
+    -> write 'install command in the terminal:
+        * 'pip install -r requirements.txt'
+
+
+## Install "Django" extension for VS Code
+    -> write 'django' in the search bar
+    -> install the extension of "Baptiste Darthenay"
+
+
+
+------------------------------------ tasks/steps --------------------------------------
+
+
+## Install Django 
+    -> add 'django' into the requirements.txt file
+    -> in the virtual environment write the 'install command' 
+        * 'pip install -r requirements.txt'
+
+## Create 'django project'
+    -> type "django-admin startproject <app-name>
+        * "django-admin startproject basic_app"
+
+## Start Django Server:
+    -> if you are in the parent folder go to the 'project' folder  
+        - go to 'basic_app' from '01_django_basic_app_cwh'
+            * cd basic_app
+    -> run the 'runserver' command
+        * python manage.py runserver
+        - server will be opened in "127.0.0.1:8000" link 
+    -> there can be an error -> "You have 18 unapplied migration(s). Your project may not work properly..."
+        - write the command, and the warning will not be shown again
+            * python manage.py migrate
+
+
+## Rename Project:
+    -> Source: https://stackoverflow.com/a/67640413
+    -> replace all the <old-project-name> into <new-project-name>
+        - replace the directory (folders) name 
+        - replace from all the project's files 
+    -> [TRICK] just find-replace the old-name into new-name, where-ever you find the old-name. That's it!
+
+
+## Create app:
+    -> go to the 'project' folder (if already not in the location)
+        * cd basic_project
+    -> write 'startapp' command
+        * python manage.py startapp basic_app
+    -> That's it!
+
+## Create 'urls.py' in the basic_app:
+    -> create 'urls.py' 
+    -> copy the codes of 'basic_project/urls.py'
+    -> paste the codes into the 'basic_app/urls.py'
+
+## Defining "path-variables":
+    -> first all the request comes to the 'basic_project/urls.py' file 
+    -> then it can be directly send the user to a page
+        OR, it will send the request to the 'basic_app/urls.py' file 
+        - "/admin" path will be directly redirected to the "admin.site.urls"
+        - "" can be redirect to the "basic_app/urls.py"
+            * urlpatterns = [
+            *    path('admin/', admin.site.urls),
+            *    path("", include('basic_app.urls'))
+            * ]
+    
+    -> 'basic_app/urls.py' generally redirect links to 'basic_app/views.py'
+        * from basic_app import views
+
+        * urlpatterns = [
+        *    path("", views.index, name = "home")
+        * ]
+
+    -> 'basic_app/view.py' generally have different function with 'end-points'
+        * from django.shortcuts import render, HttpResponse
+
+        * def index(request):
+        *    return HttpResponse("This is HOME PAGE")
+
+## adding "about", "Services", or "Contact" pages
+    -> in the 'basic_app/urls' add different end-points 
+        * urlpatterns = [
+            ..... , 
+            path("about", views.about, name = "about"), 
+            path("services", views.services, name = "services"), 
+            path("contact", views.contact, name = "contact"), 
+         ]
+    -> in the 'basic_app/vies.py' add different functions
+        * ......
+          ......
+          def about(request):
+              return HttpResponse("This is ABOUT page")
+          def services(request):
+              return HttpResponse("This is SERVICES page")
+          def contact(request):
+              return HttpResponse("This is CONTACT page")
+    
+    -> That's it!
+    
+    *** QUESTION:
+        ** Why we've not added any code into 'basic_project/urls.py', and the server given expected-output?
+
+
+## adding 'static' and 'templates' files:
+    -> create two directories exactly inside '01_django_basic_app_cwh/basic_project/basic_project' folder
+        - create 'static' and 'templates' directory
+        - for 'static' folder-> inside 'basic_projects/settings.py' add this:
+            * # manually added
+              STATICFILES_DIRS = [
+                  os.path.join(BASE_DIR, "static")
+              ]
+
+        - for 'templates' folder-> inside 'basic_projects/settings.py' add this:
+            * TEMPLATES = [
+                  {
+                      'BACKEND': "....",
+                      'DIRS': [ os.path.join(BASE_DIR, "templates") ],
+                      ..........
+                  },
+              ]
+    -> inside the 'static' folder you can add different files like-> .txt, .mp4, .html, etc.
+        - create a file named 'test.txt' and write something into this. Save it.
+        - go to "127.0.0.1:8000/static/test.txt" link
+        - you will see the writings inside the file in the browser 
+
+    -> inside the 'templates' folder, you will generally add different .html, .js- type files 
+        - create a file named 'index.html' and add some code in it. Save it.
+        - use "return render(request, "index.html")" instead of "return HttpResponse("This is HOME page")"
+
+
+## sending 'data' into templates files 
+    -> define a dictionary.
+        * context = {
+            "variable_1": "This is variable 1",
+            "variable_2": "This is variable 2"
+          }
+    -> pass the dictionary to 'render(....)' function
+        * return render(request, "index.html", context)
+
+    -> in the "index.html" file access the passed key:
+        * {{variable_1}}
+        * <b> {{variabel_2}} </b>
+        - Example: 
+            * <p>
+                <b>variable_1 = {{variable_1}}</b>
+                <br/>
+                <b>variable_2 = {{variable_2}}</b>
+                <br/>
+              </p>
+
+
+
+## Adding HTML ELEMENTS from Bootstrap:
+    -> from "https://getbootstrap.com/docs/4.4/getting-started/introduction/"
+        - copy-paste the 'starter code' into 'index.html' file 
+        - "Hello World!" will be shown 
+    -> from 'components-> Navbar':
+        - paste the navbar code inside <body> section 
+    -> Change the Names of the different nav-items
+        - from 'Link' to 'About us' or, from 'Dropdown' to 'Services'
+    -> set the end points 
+        - href="#' to href"/", or href="/contact"
+    -> change the theme:
+        - from 'light' to 'dark'
+
+
+## "Migrating": Beginning:
+    -> first check if any migrations is pending now
+        * "python manage.py makemigrations"
+        - if nothing is pending, then show 
+            -> "No changes detected"
+        - else it will show some/one 'pending change' related file-name 
+    
+    -> write code to 'migrate'
+        * "python manage.py migrate"
+        - if this is the first time, these line will be shown
+            * Operations to perform:
+              Apply all migrations: admin, auth, contenttypes, sessions.....
+
+
+## Creating "SuperUser":
+    -> write:
+        * python manage.py createsuperuser
+    -> Give the user-name/passwords
+    -> That's it!
+
+
+## Changing "Django Administration" Site text:
+    -> in the 'basic_project/urls.py':
+        - below the 'import section' add these lines
+        * admin.site.site_header = "UMSRA Admin"
+          admin.site.site_title = "UMSRA Admin Portal"
+          admin.site.index_title = "Welcome to UMSRA Researcher Portal"
+
+        - change the values as your wish
+
+## Using TEMPLATES:
+    -> make a file named 'base.html' and CUT-paste all codes from 'index.html
+    -> in the 'base.html' file
+        - below 'Navbar' section, create a BLOCK named 'body'
+            * {% block body %}{% endblock body %}
+            - if you type 'block' then the suggession will come 
+        - inside <title>, create another BLOCK named 'title'
+            * {% block title %}{% endblock title %}
+    -> in the EMPTY 'index.html' file, write these lines
+        * {% extends 'base.html' %}
+        *
+        * {% block title %}Home{% endblock title %}
+        *
+        * {% block body %}This is HOME page{% endblock body %}
+    
+    -> codes of the 'index.html' file will be replaced into base.html file's written blocks 
+
+## making and assigning other pages' files 
+    -> inside 'templates/' folder:
+        - create 'about.html', 'services.html' and 'contact.html' file 
+        - copy paste the BLOCKS from 'index.html' 
+        - slightly modify the texts
+            -> change 'Home' into 'About Us'
+        - That's it!
+    
+    -> assign the files into 'basic_app/views.py'
+        - write this line inside 'def about(..)':
+            * return render(request, "about.html") 
+        - assign "services.html" and "contact.html" inside their relative functions 
+
+## Design The webpages:
+    ---> For index.html Do this: 
+    -> copy-paste- corousel
+        - go to "https://getbootstrap.com/docs/4.4/components/carousel/#with-captions"
+        - copy-paste the 'with caption' corousel
+    -> copy-paste- Album
+        - go to "https://getbootstrap.com/docs/4.4/examples/album/"
+        - copy-paste the album section's code below corousel
+    -> get photoes from UNSPLASH.COM 
+        - use "https://source.unsplash.com/<width>x<height>/?<tag-1>,<tag-2>,.." to get photoes
+        - Example: "https://source.unsplash.com/1200x900/?library,novel"
+        * <img src="https://source.unsplash.com/1200x900/?library,novel" class="d-block w-100" alt="...">
+    - That's it!
+
+    ---> For contact.html, Do this:
+    -> add image from unsplash
+    -> add a form from the 'getbootstrap.com'
+    -> add a inside the form
+    -> add a 'csrf_token' field
+        - write 'csrf' and suggession will come 
+        - Example: 
+        * <form ...>
+        *   {% csrf_token %}
+        *   ....
+        * </form>
+
+
+## Create Models:
+    -> in the 'basic_app/models.py':
+        - create a class 'Contact' and define all the fields 
+        - Example: 
+        * # Create your models here.
+        * class Contact(models.Model):
+        *     name = models.CharField(max_length=100)
+        *     email = models.CharField(max_length=100)
+        *     phone = models.CharField(max_length=20)
+        *     desc = models.TimeField()
+        *     date = models.DateField() 
+    
+## FOR MIGRATION:
+    -> REGISTER 'basic_app' and 'Contact'
+        - in 'basic_app/admin.py' register the 'Contact' class 
+            * admin.site.register(Contact)
+        - in 'basic_project/settings.py' register 'basic_app'
+            - from 'basic_app/apps.py' copy the class-name 'BasicAppConfig'
+            - write this line inside 'INSTALLED_APPS' list (have to be string and put a comma after that)
+            * INSTALLED_APPS = [
+                  'basic_app.apps.BasicAppConfig',
+                  '......
+              ]
+    -> write commands for migration:
+        - write: "python manage.py makemigrations"
+            - OUTPUT: Migrations for 'basic_app':
+                        basic_app/migrations/0001_initial.py
+                            - Create model Contact
+        
+        - then, write "python manage.py migrate"
+            - OUTPUT: Operations to perform:
+                        Apply all migrations: admin, auth, basic_app, contenttypes, sessions
+                      Running migrations:
+                        Applying basic_app.0001_initial... OK
+    
+    -> Go to the "127.0.0.1:8000/admin":
+        - see a table named "Contact" is showing up 
+
+
+## Showing our 'string' replacing "Custom Object(..)":
+    -> just return our string into the "__str__" function.
+        - Example: 
+        * def __str__(self) -> str:
+            return f"Name: [ {self.name} ] -    Desc: [ {self.desc} ]"
+    -> now go to "http://127.0.0.1:8000/admin/basic_app/contact/"
+        - you will see:
+            -> "Name: [ Emdadul Islam ] - Desc: [ my comment ]"
+        - instead of:
+            -> "Custom Object(1)"
+
+
+## Show 'success' message:
+    -> after successfully submit data, show the 'success' message 
+        - in the 'basic_app/views.py' import 'django messages'
+        * "from django.contrib import messages"
+        - send success message:
+            -Example:
+            * def contact(request):
+            *    if request.method == 'POST':
+            *        ......
+            *        messages.success(request, "Your message has been sent successfully!")
+            *   return .....
+
+
+## Doing things in SHELL:
+    -> in terminal write:
+        * "python manage.py shell"
+        - python interpreter will start 
+        - you can write codes:
+        - Example:
+            * from basic_app.models import Contact
+
+            * Contact.objects.all()
+            * Contact.objects.all()[1]
+            * Contact.objects.filter(name = "my name")
+
+            * var = Contact.objects.filter(name = "my name")[0]
+            * var.name = "my name changed"
+            * var.save()
+        
+    -> can be practiced the queries from:
+        - Source: "https://docs.djangoproject.com/en/4.1/topics/db/queries/"
+    
+    -> type "exit()" if you want to exit from the 
