@@ -19,14 +19,20 @@ def create_sold_item(sender, instance, **kwargs):
     if stockInfo.no_of_item_in_stock < instance.quantity:
         raise Exception(f"There is low item quantity of the product {instance.product} in stock.")
     
-    SoldItem.objects.create(
-        order=instance.order,
-        product=instance.product,
-        unit_price=stockInfo.current_unit_price,
-        purchase_price=stockInfo.current_purchase_price,
-        quantity=instance.quantity,
-        discount=stockInfo.current_discount
-    )
+    # if OrderItem object is being created for first time
+    if instance._state.adding:
+        SoldItem.objects.create(
+            order=instance.order,
+            product=instance.product,
+            unit_price=stockInfo.current_unit_price,
+            purchase_price=stockInfo.current_purchase_price,
+            quantity=instance.quantity,
+            discount=stockInfo.current_discount
+        )
+    else: # OrderItem is already created, now it's being updated.
+        soldItemInfo = SoldItem.objects.filter(order=instance.order, product=instance.product).first()
+        soldItemInfo.quantity = instance.quantity
+        soldItemInfo.save(update_fields=['quantity'])
     
 @receiver(pre_delete, sender = OrderItem)
 def delete_sold_item(sender, instance, **kwargs):
