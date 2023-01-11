@@ -1,7 +1,8 @@
 import json
 from math import prod
 
-from . models import *
+from . models import Product, Cart, CartItem, Stock
+from customer_app.models import Customer
 
 def cookieCart(request):
     try:

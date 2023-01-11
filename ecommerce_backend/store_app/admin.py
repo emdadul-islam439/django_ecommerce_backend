@@ -1,12 +1,8 @@
 from django.contrib import admin
 
 from store_app.models import Order, OrderItem, Product, Cart, CartItem, ShippingAddress, WishListItem, PurchasedItem, SoldItem, Stock
-from store_app.models import Customer
 
 # Register your models here.
-class CustomerAdminModel(admin.ModelAdmin):
-    search_fields = ("user__username",)
-
 class ProductAdminModel(admin.ModelAdmin):
     search_fields=("name",)
 
@@ -48,7 +44,6 @@ class StockAdminModel(admin.ModelAdmin):
     raw_id_fields = ["product",]
     
     
-admin.site.register(Customer, CustomerAdminModel)
 admin.site.register(Product, ProductAdminModel)  
 admin.site.register(Cart)
 admin.site.register(CartItem)
