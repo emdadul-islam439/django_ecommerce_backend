@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     'admin_app',
-    'auth_app',
     'background_task_app',
     'customer_app',
     'store_app',
