@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     'customer_app',
     'store_app',
     
+    'crispy_forms',
+    
     'django_celery_results',
     'django_celery_beat',
 ]
@@ -141,6 +143,8 @@ LOGIN_URL = "login"
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 # Email placeholder setting
 # EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"

@@ -30,7 +30,7 @@ def register(request):
             return redirect('login')
     else:
         form = UserRegisterForm()
-    return render(request, "customers/register.html", {'form': form})
+    return render(request, "customer_app/register.html", {'form': form})
 
 
 @login_required
@@ -58,7 +58,7 @@ def profile(request):
         "p_form" : p_form,
         "noOfCartItems" : noOfCartItems
     }
-    return render(request, "customers/profile.html", context)
+    return render(request, "customer_app/profile.html", context)
      
     
 def wishList(request):
@@ -69,7 +69,7 @@ def wishList(request):
     productInfoList = list(zip(products, cartItemList, stockInfoList))
     
     context = { 'productInfoList' : productInfoList, 'noOfCartItems':  cookieData['noOfCartItems']}
-    return render(request, 'customers/wishlist.html', context)
+    return render(request, 'customer_app/wishlist.html', context)
     
 
 @login_required 
@@ -79,7 +79,7 @@ def orderList(request):
     print('in orderList()------> ORDERS: ', orders)
     
     context={ 'orders' : orders, 'noOfCartItems':  cookieData['noOfCartItems']}
-    return render(request, 'customers/order-list.html', context)
+    return render(request, 'customer_app/order-list.html', context)
 
 
 class OrderDetailView(DetailView):
