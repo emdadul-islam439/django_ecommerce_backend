@@ -7,7 +7,7 @@ from store_app.utils import cartData, getTrackInfoList
 
 class AdminOrderDetailView(DetailView):
     login_required = True
-    template_name: str = "admin/store/order/admin_order_details.html"
+    template_name: str = "admin/store_app/order/admin_order_details.html"
     context_object_name: str = "order"
     model = Order
     
@@ -107,7 +107,7 @@ def addAdminOrderItems(request, **kwargs):
 
 class AdminCartDetailView(DetailView):
     login_required = True
-    template_name: str = "admin/store/cart/admin_cart_details.html"
+    template_name: str = "admin/store_app/cart/admin_cart_details.html"
     context_object_name: str = "cart"
     model = Cart
     

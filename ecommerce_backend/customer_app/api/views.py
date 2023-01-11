@@ -84,7 +84,7 @@ def orderList(request):
 
 class OrderDetailView(DetailView):
     login_required = True
-    template_name: str = "customers/order-details.html"
+    template_name: str = "customer_app/order-details.html"
     context_object_name: str = "order"
     model = Order
     

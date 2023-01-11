@@ -1,0 +1,64 @@
+{% extends 'store/main.html' %}
+{% load static %}
+{% block content %}
+    <div class="row">
+        {% for product, cartItemInfo, stockInfo in productInfoList %}
+            <div id='wish-item-product-id-{{product.id}}' class="col-lg-4">
+                <img id="img-id-{{ forloop.counter0 }}" data-counter={{ forloop.counter0 }} class="thumbnail fade-while-hovering" src="{{product.imageURL}}">
+                <a id="view-btn-id-{{ forloop.counter0 }}" data-counter={{ forloop.counter0 }}  class="btn btn-success align-center view-btn hidden" href="/product-details/{{product.id}}">View Details</a>
+
+                <div class="box-element product">
+                    <strong>{{product.name}}</strong>
+                    <a data-product={{product.id}} class="text-decoration-none wish-list" style="float:right">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heartt" viewBox="0 0 16 16">
+                            <path id="remove-btn-{{product.id}}" style="color:MediumSeaGreen" fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>
+                            <path id="add-btn-{{product.id}}" style="color:black" d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"></path>
+
+                            {% if request.user.customer.id in product.wishlist_item_customer_id_list %}
+                                <script>
+                                    console.log("remove-btn: product.name = {{product.name}}   ||  product.isInWishList = '{{product.isInWishlist}}'")
+                                    document.getElementById("remove-btn-{{product.id}}").classList.remove("hidden")
+                                    document.getElementById("add-btn-{{product.id}}").classList.add("hidden")
+                                </script>
+                            {% else %}  
+                                <script>
+                                    console.log("add-btn: product.name = {{product.name}}   ||  product.isInWishList = '{{product.isInWishlist}}'")
+                                    document.getElementById("remove-btn-{{product.id}}").classList.add("hidden")
+                                    document.getElementById("add-btn-{{product.id}}").classList.remove("hidden")
+                                </script>
+                            {% endif %}
+                        </svg>
+                    </a>
+
+                    <hr>
+
+                    {% if stockInfo.effectiveOrderLimit %}
+                        {% if cartItemInfo.quantity > 0 %}
+                            <button data-product={{product.id}} data-action="remove"  class="btn btn-outline-dark remove-btn update-cart pl-2 pr-2">-</button>
+                            <button class="btn btn-outline-dark pl-4 pr-4">{{ cartItemInfo.quantity }}</button>
+                            {% if cartItemInfo.quantity <= stockInfo.effectiveOrderLimit %}
+                                <button data-product={{product.id}} data-action="add"  class="btn btn-outline-dark add-btn update-cart pl-2 pr-2">+</button>
+                            {% else %}
+                                <button class="btn btn-outline-secondary cannot-add-btn pl-2 pr-2">+</button>
+                            {% endif %}
+                        {% else %}
+                            <button data-product={{product.id}} data-action="add"  class="btn btn-outline-dark add-btn update-cart"> Add to Cart </button>
+                        {% endif %}
+                    {% else %}
+                        <button class="btn btn-outline-danger">Out of Stock</button>
+                    {% endif %}
+
+                    <h4 style="display: inline-block; float: right"><strong>${{product.price|floatformat:2}}</strong></h4>
+            
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pixeden-stroke-7-icon@1.2.3/pe-icon-7-stroke/dist/pe-icon-7-stroke.min.css">	
+    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" rel="stylesheet">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.bundle.min.js"></script>
+
+{% endblock content %}

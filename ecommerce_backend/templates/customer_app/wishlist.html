@@ -1,0 +1,62 @@
+{% extends 'store/main.html' %}
+{% load static %}
+{% block content %}
+    <div id="wishlist-item-id-items" class="row">
+        {% for product, cartItemInfo, stockInfo in productInfoList %}
+            <div id = 'wishlist-item-id-{{product.id}}' class="col-lg-4 wishlist-page-item">
+                <img id="img-id-{{ forloop.counter0 }}" data-counter={{ forloop.counter0 }} class="thumbnail fade-while-hovering" src="{{product.imageURL}}">
+                <a id="view-btn-id-{{ forloop.counter0 }}" data-counter={{ forloop.counter0 }}  class="btn btn-success align-center view-btn hidden" href="/product-details/{{product.id}}">View Details</a>
+
+                <div class="box-element product">
+                    <strong>{{product.name}}</strong>
+                    <a data-product={{product.id}} class="text-decoration-none wishlist-class-wish-list" style="float:right">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heartt" viewBox="0 0 16 16">
+                            <path id="wish-list-remove-btn-{{product.id}}" style="color:MediumSeaGreen" fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>
+                        </svg>
+                    </a>
+
+                    <hr>
+
+                    {% if stockInfo.effectiveOrderLimit %}
+                        {% if cartItemInfo.quantity > 0 %}
+                            <button data-product={{product.id}} data-action="remove"  class="btn btn-outline-dark remove-btn update-cart pl-2 pr-2">-</button>
+                            <button class="btn btn-outline-dark pl-4 pr-4">{{ cartItemInfo.quantity }}</button>
+                            {% if cartItemInfo.quantity <= stockInfo.effectiveOrderLimit %}
+                                <button data-product={{product.id}} data-action="add"  class="btn btn-outline-dark add-btn update-cart pl-2 pr-2">+</button>
+                            {% else %}
+                                <button class="btn btn-outline-secondary cannot-add-btn pl-2 pr-2">+</button>
+                            {% endif %}
+                        {% else %}
+                            <button data-product={{product.id}} data-action="add"  class="btn btn-outline-dark add-btn update-cart"> Add to Cart </button>
+                        {% endif %}
+                    {% else %}
+                        <button class="btn btn-outline-danger">Out of Stock</button>
+                    {% endif %}
+                    <h4 style="display: inline-block; float: right"><strong>${{product.price|floatformat:2}}</strong></h4>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <div id="wishlist-item-id-no-content" class="no-content-text hidden" style="float:center">
+        <h2>No content found! </h2>
+    </div>
+
+
+    {% if productInfoList|length > 0 %}
+        <script>
+            document.getElementById("wishlist-item-id-items").classList.remove("hidden")
+            document.getElementById("wishlist-item-id-no-content").classList.add("hidden")
+        </script>
+    {% else %}
+        <script>
+            document.getElementById("wishlist-item-id-items").classList.add("hidden")
+            document.getElementById("wishlist-item-id-no-content").classList.remove("hidden")
+        </script>
+    {% endif %}
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pixeden-stroke-7-icon@1.2.3/pe-icon-7-stroke/dist/pe-icon-7-stroke.min.css">	
+    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" rel="stylesheet">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock content %}

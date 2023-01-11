@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+    <head>
+           <title>Ecom</title>
+
+           <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+
+           <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1" />
+
+           <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+       
+           <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
+
+
+            <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" rel="stylesheet">
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.bundle.min.js"></script>
+           
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pixeden-stroke-7-icon@1.2.3/pe-icon-7-stroke/dist/pe-icon-7-stroke.min.css">
+
+           <script type="text/javascript">
+                var user = '{{request.user}}'
+                var csrftoken = getToken('csrftoken');
+
+                function getToken(name) {
+                    var cookieValue = null;
+                    if (document.cookie && document.cookie != '') {
+                        var cookies = document.cookie.split(';');
+                        for (var i = 0; i < cookies.length; i++) {
+                            var cookie = jQuery.trim(cookies[i]);
+                            // Does this cookie string begin with the name we want?
+                            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                break;
+                            }
+                        }
+                    }
+                    return cookieValue;
+                }
+
+
+                function getCookie(name){
+                    //split cookie string and get all individual 'name=value' pairs in an array
+                    var cookieArr = document.cookie.split(";")
+
+                    //Loop through the array elements
+                    for(var i = 0;  i<cookieArr.length; i++){
+                        var cookiePair = cookieArr[i].split("=")
+
+                        //removing whitespaces from the beginning and ending of the cookie name
+                        // and comparing it with the given string-> 'name'
+
+                        if(name == cookiePair[0].trim()){
+                            //Decode the cookie value and return 
+                            return decodeURIComponent(cookiePair[1])
+                        }
+                    }
+
+                    //return null if not found
+                    return null
+                }
+
+                var cart = JSON.parse(getCookie('cart'))
+                if(cart == undefined){
+                    cart = {}
+                    console.log('Cart Created!', cart)
+                    document.cookie = 'cart=' + JSON.stringify(cart) + ';domain=;path=/'
+                }
+                console.log('Cart:', cart)
+           </script>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="background-color:#4f868c !important">
+            <a class="navbar-brand" href="{% url 'store' %}">Ecom</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+            </button>
+        
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="{% url 'store' %}">Store <span class="sr-only">(current)</span></a>
+                    </li>
+                </ul>
+                <div class="form-inline my-2 my-lg-0">
+                    {% if user.is_authenticated %}
+                        <a href={%url 'logout'%} class="btn btn-warning">Logout</a>
+                        {% comment %} <a class="nav-item nav-link" href={%url 'logout'%}>Logout</a> {% endcomment %}
+                    {% else %}
+                        <a href={%url 'login'%} class="btn btn-warning mr-3">Login</a>
+                        {% comment %} <a class="nav-item nav-link" href={%url 'login'%}>Login</a> {% endcomment %}
+                        <a href={%url 'register'%} class="btn btn-success">Register</a>
+                    {% endif %}
+
+                    <a href="{% url 'cart' %}">
+                        <img  id="cart-icon" src="{% static 'images/cart.png' %}">
+                    </a>
+                    <p id="cart-total">{{ noOfCartItems }}</p>
+                </div>
+                <script>
+                    $('.dropdown-toggle').dropdown();
+                </script>
+                
+                <div class="nav-item dropdown p-0 m-0">
+                    <a class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> 
+                        <img id="profile-icon" class="rounded-circle article-img" src="{{ request.user.customer.image.url }}">
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown"f>
+                        <a class="dropdown-item"  href={%url 'profile'%}>Profile</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{% url 'order-list' %}">My Orders</a>
+                        <a class="dropdown-item" href="{% url 'wishlist' %}">My Wishlist</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+         <div class="container">
+            {% comment %} {% if messages %}
+              {% for message in messages %}
+                <div class = "alert alert-{{message.tags}}">
+                  {{ message }}
+                </div>
+              {% endfor %}
+            {% endif %} {% endcomment %}
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-success alert-dismissible fade show my-0" role="alert">
+                        <strong>{{message}}</strong>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% block content %}
+
+            {% endblock content %}
+         </div>
+
+        <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    
+        <script type="text/javascript" src="{% static 'js/cart.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/store-page.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/wishlist-page.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/product-details.js' %}"></script>
+    </body>
+</html>
