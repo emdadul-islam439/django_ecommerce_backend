@@ -174,7 +174,7 @@ def processOrder(request):
             item.delete()
     
     if cart.shipping == True:
-        ShippingAddress.objects.create( 
+        shipping_address = ShippingAddress.objects.create( 
             customer=customer,
             order=order,
             address=data['shipping']['address'],
@@ -182,6 +182,10 @@ def processOrder(request):
             state=data['shipping']['state'],
             zipcode=data['shipping']['zipcode'],
         )
+        order.is_shipped = True
+        order.shipping_address = shipping_address
+        order.save(update_fields=['is_shipped', 'shipping_address'])
+        
     return JsonResponse(f'{order.id}', safe=False)
 
 

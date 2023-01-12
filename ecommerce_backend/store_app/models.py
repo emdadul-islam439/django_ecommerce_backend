@@ -104,6 +104,18 @@ class CartItem(models.Model):
     @property
     def get_stock_info(self):
         return Stock.objects.get(product=self.product)
+        
+    
+class ShippingAddress(models.Model):
+    customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True)
+    address = models.CharField(max_length=200, null=True)
+    city = models.CharField(max_length=200, null=True)
+    state = models.CharField(max_length=200, null=True)
+    zipcode = models.CharField(max_length=200, null=True) 
+    date_added = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self) -> str:
+        return self.address
     
 
 class Order(models.Model):
@@ -123,9 +135,11 @@ class Order(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True)
     order_status = models.IntegerField('Order Status', choices=STATUS_CHOICES, default=0)
     payment_option = models.CharField('Payment Options', choices=PAYMENT_OPTION_CHOICES, max_length=20, default='Cash On Delivery')
+    transaction_id = models.CharField(max_length=100, null=True)
+    is_shipped = models.BooleanField(default=False)
+    shipping_address = models.ForeignKey(ShippingAddress, on_delete=models.SET_NULL, null=True)
     created = models.DateTimeField('Created in', auto_now_add=True)
     modified = models.DateTimeField('Modified in', auto_now=True)
-    transaction_id = models.CharField(max_length=100, null=True)
     
     class Meta:
         verbose_name = 'Order'
@@ -175,19 +189,6 @@ class OrderItem(models.Model):
     @property
     def get_total(self):
         return self.quantity * self.product.price
-        
-    
-class ShippingAddress(models.Model):
-    customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True)
-    order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True, blank=True)
-    address = models.CharField(max_length=200, null=True)
-    city = models.CharField(max_length=200, null=True)
-    state = models.CharField(max_length=200, null=True)
-    zipcode = models.CharField(max_length=200, null=True) 
-    date_added = models.DateTimeField(auto_now_add=True)
-    
-    def __str__(self) -> str:
-        return self.address
     
     
 class WishListItem(models.Model):

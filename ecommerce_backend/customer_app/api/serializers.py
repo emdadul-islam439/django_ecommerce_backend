@@ -28,3 +28,19 @@ class RegistrationSerializer(serializers.ModelSerializer):
         account.save()
         
         return account
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    pass
+
+
+class WishListSerializer(serializers.ModelSerializer):
+    pass
+
+
+class OrderListSerializer(serializers.ModelSerializer):
+    pass
+
+
+class OrderDetailsSerializer(serializers.ModelSerializer):
+    pass
