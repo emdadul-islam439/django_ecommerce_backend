@@ -3,17 +3,10 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.generic import DetailView
 
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework.authtoken.models import Token
-from rest_framework import status
-
 from customer_app.forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 from store_app.utils import cartData, getWishListItems, getTrackInfoList, getCartItemList, getStockInfoList
 from store_app.models import Order, OrderItem
 from customer_app.models import AdminUser
-from customer_app.api.serializers import RegistrationSerializer
-
 
 # Create your views here.
 def redirectUser(request):
@@ -28,33 +21,16 @@ def redirectUser(request):
     return redirect('store/', parmanent=True)
     
     
-@api_view(['POST',])
 def register(request):
     if request.method == 'POST':
-        serializer = RegistrationSerializer(data=request.data)
-        data = {}
-        
-        if serializer.is_valid():
-            account = serializer.save()
-            token = Token.objects.get(user=account).key
-            status_code = status.HTTP_201_CREATED
-            
-            data['Response'] = "User created successfully!"
-            data['username'] = account.username
-            data['email'] = account.email
-            data['token'] = token
-        else:
-            data = serializer.errors
-            status_code = status.HTTP_400_BAD_REQUEST
-        
-        return Response(data, status=status_code)
-
-
-@api_view(['POST'])
-def logout(request):
-    if request.method == 'POST':
-        request.user.auth_token.delete()
-        return Response(status=status.HTTP_200_OK)
+        form = UserRegisterForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Your account has been created successfully! You can now login into your account.")
+            return redirect('login')
+    else:
+        form = UserRegisterForm()
+    return render(request, "customers/register.html", {'form': form})
 
 
 @login_required
@@ -82,7 +58,7 @@ def profile(request):
         "p_form" : p_form,
         "noOfCartItems" : noOfCartItems
     }
-    return render(request, "customer_app/profile.html", context)
+    return render(request, "customers/profile.html", context)
      
     
 def wishList(request):
@@ -93,7 +69,7 @@ def wishList(request):
     productInfoList = list(zip(products, cartItemList, stockInfoList))
     
     context = { 'productInfoList' : productInfoList, 'noOfCartItems':  cookieData['noOfCartItems']}
-    return render(request, 'customer_app/wishlist.html', context)
+    return render(request, 'customers/wishlist.html', context)
     
 
 @login_required 
@@ -103,7 +79,7 @@ def orderList(request):
     print('in orderList()------> ORDERS: ', orders)
     
     context={ 'orders' : orders, 'noOfCartItems':  cookieData['noOfCartItems']}
-    return render(request, 'customer_app/order-list.html', context)
+    return render(request, 'customers/order-list.html', context)
 
 
 class OrderDetailView(DetailView):
