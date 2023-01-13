@@ -6,12 +6,13 @@ from django.views.generic import DetailView
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
-from rest_framework import status
+from rest_framework import status, generics
 
 from .serializers import RegistrationSerializer
 from customer_app.forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 from store_app.utils import cartData, getWishListItems, getTrackInfoList, getCartItemList, getStockInfoList
 from store_app.models import Order, OrderItem
+from store_app.api.serializers import OrderSerializer
 from customer_app.models import AdminUser
 
 # Create your views here.
@@ -42,7 +43,14 @@ def logout(request):
     if request.method == 'POST':
         request.user.auth_token.delete()
         return Response(status=status.HTTP_200_OK)
-
+    
+    
+class OrderList(generics.ListAPIView):
+    serializer_class = OrderSerializer
+    
+    def get_queryset(self):
+        return Order.objects.filter(customer=self.request.user.customer)
+    
 
 def redirectUser(request):
     print('IN RE-DIRECT-USER')

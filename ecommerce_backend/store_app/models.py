@@ -138,7 +138,7 @@ class Order(models.Model):
     payment_option = models.CharField('Payment Options', choices=PAYMENT_OPTION_CHOICES, max_length=20, default='Cash On Delivery')
     transaction_id = models.CharField(max_length=100, null=True)
     is_shipped = models.BooleanField(default=False)
-    shipping_address = models.ForeignKey(ShippingAddress, on_delete=models.SET_NULL, null=True)
+    shipping_address = models.ForeignKey(ShippingAddress, on_delete=models.SET_NULL, null=True, blank=True)
     created = models.DateTimeField('Created in', auto_now_add=True)
     modified = models.DateTimeField('Modified in', auto_now=True)
     

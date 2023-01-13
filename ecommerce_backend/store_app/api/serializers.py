@@ -1,3 +1,4 @@
+import json
 from rest_framework import serializers
 
 from store_app.models import Product, Cart, CartItem, ShippingAddress, Order, OrderItem, WishListItem, PurchasedItem, SoldItem, Stock
@@ -15,10 +16,15 @@ class CartItemSerializer(serializers.ModelSerializer):
 
 
 class CartSerializer(serializers.ModelSerializer):
-    cart_item_list = CartItemSerializer(many=True, read_only=True)
+    cart_item_list = serializers.SerializerMethodField()
     class Meta:
         model = Cart
         fields = '__all__'
+        
+    def get_cart_item_list(self, object):
+        allCartItems = object.cartitem_set.all()
+        serializer = CartItemSerializer(allCartItems, many=True)
+        return serializer.data
 
 
 class ShippingAddressSerializer(serializers.ModelSerializer):
@@ -34,10 +40,15 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    order_item_list = OrderItemSerializer(many=True, read_only=True)
+    order_item_list = serializers.SerializerMethodField()
     class Meta:
         model = Order
         fields = '__all__'
+    
+    def get_order_item_list(self, object):
+        allOrderItems = object.orderitem_set.all()
+        serializer = OrderItemSerializer(allOrderItems, many=True)
+        return serializer.data
 
 
 class WishListItemSerializer(serializers.ModelSerializer):
