@@ -121,6 +121,37 @@ class CartWithItemSerializer(serializers.ModelSerializer):
             if item.is_checked:
                 total_cost += item.get_stock_info.current_selling_price
         return total_cost
+    
+    
+class OrderSummarySerializer(serializers.ModelSerializer):
+    item_list = serializers.SerializerMethodField()
+    no_of_items = serializers.SerializerMethodField()
+    total_cost = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Cart
+        fields = '__all__'
+    
+    def get_item_list(self, object):
+        cart_item_list = CartItem.objects.filter(cart=object, is_checked=True)
+        serializer = CartItemSerializer(cart_item_list, many=True)
+        return serializer.data
+    
+    def get_no_of_items(self, object):
+        cart_item_list = CartItem.objects.filter(cart=object)
+        total_items = 0
+        for item in cart_item_list:
+            if item.is_checked:
+                total_items += item.quantity
+        return total_items
+    
+    def get_total_cost(self, object):
+        cart_item_list = CartItem.objects.filter(cart=object)
+        total_cost = 0
+        for item in cart_item_list:
+            if item.is_checked:
+                total_cost += item.get_stock_info.current_selling_price
+        return total_cost
         
 
 class WishListItemSerializer(serializers.ModelSerializer):

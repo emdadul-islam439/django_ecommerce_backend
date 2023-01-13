@@ -14,7 +14,7 @@ from statistics import quantiles
 
 from store_app.utils import cartData, guestOrder, cookieCart, getWishListItems, getCartItemList, getStockInfoList, getProductListFromCartItems
 from store_app.models import Cart, Product, CartItem, ShippingAddress, WishListItem, Order, OrderItem, Stock, PurchasedItem, SoldItem
-from store_app.api.serializers import ProductSerializer, CartItemSerializer, StockSerializer, CartWithItemSerializer
+from store_app.api.serializers import ProductSerializer, CartItemSerializer, StockSerializer, CartWithItemSerializer, ShippingAddressSerializer, OrderSummarySerializer
 from background_task_app.models import EmailSendingTask
 from background_task_app.enums import SetupStatus
 
@@ -73,6 +73,24 @@ class CartPageAV(APIView):
 class CartItemDetailsGV(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CartItemSerializer
     queryset = CartItem.objects.all()
+    
+
+class CheckoutPageAV(APIView):
+    def get(self, request):
+        try:
+            shippingAddress_list = ShippingAddress.objects.filter(customer=request.user.customer)
+            shipping_serializer = ShippingAddressSerializer(shippingAddress_list, many=True)
+            
+            cart = Cart.objects.filter(customer=request.user.customer).first()
+            order_summary_serializer = OrderSummarySerializer(cart)
+            
+            checkout_page_info = {
+                'shipping_address_list': shipping_serializer.data, 
+                'order_summary': order_summary_serializer.data
+            }
+            return Response(checkout_page_info, status=status.HTTP_200_OK)
+        except:
+            return Response({'error': 'data not found'}, status=status.HTTP_404_NOT_FOUND)
         
     
 def store(request):
