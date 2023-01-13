@@ -12,7 +12,7 @@ class Product(models.Model):
     image = models.ImageField(null=True, blank=True)
     
     def __str__(self) -> str:
-        return self.name
+        return f"Product: id = {self.id} | name = {self.name}"
   
     @property
     def imageURL(self):

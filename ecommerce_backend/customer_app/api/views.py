@@ -11,8 +11,8 @@ from rest_framework import status, generics
 from .serializers import RegistrationSerializer
 from customer_app.forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm
 from store_app.utils import cartData, getWishListItems, getTrackInfoList, getCartItemList, getStockInfoList
-from store_app.models import Order, OrderItem
-from store_app.api.serializers import OrderSerializer
+from store_app.models import Order, OrderItem, WishListItem
+from store_app.api.serializers import OrderSerializer, WishListItemSerializer
 from customer_app.models import AdminUser
 
 # Create your views here.
@@ -43,6 +43,13 @@ def logout(request):
     if request.method == 'POST':
         request.user.auth_token.delete()
         return Response(status=status.HTTP_200_OK)
+    
+
+class WishListAV(generics.ListAPIView):
+    serializer_class = WishListItemSerializer
+    
+    def get_queryset(self):
+        return WishListItem.objects.filter(customer=self.request.user.customer)
     
     
 class OrderListAV(generics.ListAPIView):
