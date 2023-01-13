@@ -14,7 +14,7 @@ from statistics import quantiles
 
 from store_app.utils import cartData, guestOrder, cookieCart, getWishListItems, getCartItemList, getStockInfoList, getProductListFromCartItems
 from store_app.models import Cart, Product, CartItem, ShippingAddress, WishListItem, Order, OrderItem, Stock, PurchasedItem, SoldItem
-from store_app.api.serializers import ProductSerializer, CartItemSerializer, StockSerializer
+from store_app.api.serializers import ProductSerializer, CartItemSerializer, StockSerializer, CartWithItemSerializer
 from background_task_app.models import EmailSendingTask
 from background_task_app.enums import SetupStatus
 
@@ -57,8 +57,17 @@ class StoreAV(APIView):
             #           like "/"product_info/": /"..../"" (adding a slash before all inverted commas)
             return Response(product_with_stock_and_cart_info_list, status=status.HTTP_200_OK)
         except:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-    
+            return Response({'error': 'data not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+
+class CartPageAV(APIView):
+    def get(self, request):
+        try:
+            cart = Cart.objects.filter(customer=request.user.customer).first()
+            serializer = CartWithItemSerializer(cart)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except:
+            return Response({'error': 'data not found'}, status=status.HTTP_404_NOT_FOUND)
     
 def store(request):
     cookieData = cartData(request=request)

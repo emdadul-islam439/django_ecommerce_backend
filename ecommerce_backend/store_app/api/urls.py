@@ -6,7 +6,7 @@ from store_app.api import views as store_views
 urlpatterns = [
     path('no-of-cart-items/', store_views.NoOfCartItemsAV.as_view(), name = 'no-of-cart-items'),
     path('store/', store_views.StoreAV.as_view(), name = 'store'),
-    path('cart/', store_views.cart, name = 'cart'),
+    path('cart-page/', store_views.CartPageAV.as_view(), name = 'cart-page'),
     path('checkout/', store_views.checkout, name = 'checkout'),
     path('update-registered-user-cart/', store_views.updateRegisteredUserCart, name = 'update-registered-user-cart'),
     path('update-cookie-cart/', store_views.updateCookieCart, name = 'update-cookie-cart'),
