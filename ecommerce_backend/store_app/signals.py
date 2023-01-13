@@ -1,7 +1,8 @@
 from django.db.models.signals import post_save, pre_save, pre_delete
 from django.dispatch import receiver
 
-from store_app.models import Product, Stock, OrderItem, SoldItem
+from store_app.models import Product, Stock, OrderItem, SoldItem, WishListItem
+from customer_app.models import Customer
     
 @receiver(post_save, sender = Product)    
 def create_new_stock_item(sender, instance, created, **kwargs):
@@ -43,3 +44,15 @@ def delete_sold_item(sender, instance, **kwargs):
         soldItemInfo.delete()
     else:
         raise Exception('No related OrderItem and SoldItem found')
+    
+@receiver(pre_save, sender=WishListItem)
+def validate_wishlist_item_creation(sender, instance, **kwargs):
+    wishlist_item_list = instance.customer.wishlistitem_set.all()
+    
+    # # the above result can be done in this way also
+    # customer_info = Customer.objects.filter(pk=instance.customer.id).first()
+    # wishlist_item_list = customer_info.wishlistitem_set.all()
+    
+    for wishlist_item in wishlist_item_list:
+        if wishlist_item.product.id == instance.product.id:
+            raise Exception("This product is already in the customer's wishlist")

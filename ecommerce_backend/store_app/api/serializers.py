@@ -85,6 +85,7 @@ class WishListItemSerializer(serializers.ModelSerializer):
         serializer = CartItemSerializer(cart_info)
         return serializer.data
         
+        
 class PurchasedItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = PurchasedItem
