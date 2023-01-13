@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 
+from customer_app.models import AdminUser, Customer
+
 class RegistrationSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(style={'input_type': 'password',}, write_only=True)
     
@@ -30,17 +32,13 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return account
 
 
-class ProfileSerializer(serializers.ModelSerializer):
-    pass
+class AdminUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AdminUser
+        fields = '__all__'
 
 
-class WishListSerializer(serializers.ModelSerializer):
-    pass
-
-
-class OrderListSerializer(serializers.ModelSerializer):
-    pass
-
-
-class OrderDetailsSerializer(serializers.ModelSerializer):
-    pass
+class CustomerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Customer
+        fields = '__all__'

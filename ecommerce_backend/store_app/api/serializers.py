@@ -17,6 +17,7 @@ class CartItemSerializer(serializers.ModelSerializer):
 
 class CartSerializer(serializers.ModelSerializer):
     cart_item_list = serializers.SerializerMethodField()
+    customer = serializers.StringRelatedField(read_only=True)
     class Meta:
         model = Cart
         fields = '__all__'
@@ -41,6 +42,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     order_item_list = serializers.SerializerMethodField()
+    customer = serializers.StringRelatedField(read_only=True)
     class Meta:
         model = Order
         fields = '__all__'
