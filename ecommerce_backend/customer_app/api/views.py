@@ -45,11 +45,19 @@ def logout(request):
         return Response(status=status.HTTP_200_OK)
     
     
-class OrderList(generics.ListAPIView):
+class OrderListAV(generics.ListAPIView):
     serializer_class = OrderSerializer
     
     def get_queryset(self):
         return Order.objects.filter(customer=self.request.user.customer)
+    
+
+class OrderDetailsAV(generics.ListAPIView):
+    serializer_class = OrderSerializer
+    
+    def get_queryset(self):
+        pk = self.kwargs['pk']
+        return Order.objects.filter(pk=pk)
     
 
 def redirectUser(request):
