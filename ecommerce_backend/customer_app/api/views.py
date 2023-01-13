@@ -73,21 +73,21 @@ class ProfileAV(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     
-class WishListAV(generics.ListAPIView):
+class WishListGV(generics.ListAPIView):
     serializer_class = WishListItemSerializer
     
     def get_queryset(self):
         return WishListItem.objects.filter(customer=self.request.user.customer)
     
     
-class OrderListAV(generics.ListAPIView):
+class OrderListGV(generics.ListAPIView):
     serializer_class = OrderSerializer
     
     def get_queryset(self):
         return Order.objects.filter(customer=self.request.user.customer)
     
 
-class OrderDetailsAV(generics.RetrieveAPIView):
+class OrderDetailsGV(generics.RetrieveAPIView):
     serializer_class = OrderSerializer
     
     def get_queryset(self):

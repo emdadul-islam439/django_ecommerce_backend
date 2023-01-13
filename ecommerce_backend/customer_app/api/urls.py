@@ -9,7 +9,7 @@ urlpatterns = [
     path('logout/', customer_views.logout, name = "logout"),
     
     path('profile/', customer_views.ProfileAV.as_view(), name = "profile"),
-    path('wishlist/', customer_views.WishListAV.as_view(), name = 'wishlist'),
-    path('order-list/', customer_views.OrderListAV.as_view(), name = 'order-list'),
-    path('order-details/<int:pk>', customer_views.OrderDetailsAV.as_view(), name = 'order-details'),
+    path('wishlist/', customer_views.WishListGV.as_view(), name = 'wishlist'),
+    path('order-list/', customer_views.OrderListGV.as_view(), name = 'order-list'),
+    path('order-details/<int:pk>', customer_views.OrderDetailsGV.as_view(), name = 'order-details'),
 ]
