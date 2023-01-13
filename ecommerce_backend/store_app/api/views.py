@@ -70,6 +70,15 @@ class CartPageAV(APIView):
             return Response({'error': 'data not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
+class CreateCartItemGV(generics.CreateAPIView):
+    serializer_class = CartItemSerializer
+    
+    def get_queryset(self):
+        return CartItem.objects.all()
+    
+    def perform_create(self, serializer):
+        serializer.save(cart=self.request.user.customer.cart)
+
 class CartItemDetailsGV(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CartItemSerializer
     queryset = CartItem.objects.all()

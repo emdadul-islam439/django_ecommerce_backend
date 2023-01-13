@@ -7,6 +7,7 @@ urlpatterns = [
     path('no-of-cart-items/', store_views.NoOfCartItemsAV.as_view(), name='no-of-cart-items'),
     path('store/', store_views.StoreAV.as_view(), name='store'),
     path('cart-page/', store_views.CartPageAV.as_view(), name='cart-page'),
+    path('create-cart-item/', store_views.CreateCartItemGV.as_view(), name='create-cart-item'),
     path('cart-item-details/<int:pk>', store_views.CartItemDetailsGV.as_view(), name='cart-item-details'),
     path('checkout-page/', store_views.CheckoutPageAV.as_view(), name='checkout-page'),
     path('create-shipping-address/', store_views.CreateShippingAddressGV.as_view(), name='create-shipping-address'),
