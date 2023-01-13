@@ -52,7 +52,7 @@ class OrderListAV(generics.ListAPIView):
         return Order.objects.filter(customer=self.request.user.customer)
     
 
-class OrderDetailsAV(generics.ListAPIView):
+class OrderDetailsAV(generics.RetrieveAPIView):
     serializer_class = OrderSerializer
     
     def get_queryset(self):
