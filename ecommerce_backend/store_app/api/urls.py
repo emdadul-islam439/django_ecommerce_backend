@@ -2,10 +2,8 @@ from django.contrib import admin
 from django.urls import path
 
 from store_app.api import views as store_views
-from customer_app.api import views as customer_views
 
 urlpatterns = [
-    path('', customer_views.redirectUser, name = 'redirect'),
     path('store/', store_views.store, name = 'store'),
     path('cart/', store_views.cart, name = 'cart'),
     path('checkout/', store_views.checkout, name = 'checkout'),
