@@ -91,6 +91,21 @@ class CheckoutPageAV(APIView):
             return Response(checkout_page_info, status=status.HTTP_200_OK)
         except:
             return Response({'error': 'data not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class CreateShippingAddressGV(generics.CreateAPIView):
+    serializer_class = ShippingAddressSerializer
+    
+    def get_queryset(self):
+        return ShippingAddress.objects.all()
+    
+    def perform_create(self, serializer):
+        serializer.save(customer=self.request.user.customer)
+        
+
+class ShippingDetailsGV(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = ShippingAddressSerializer
+    queryset = ShippingAddress.objects.all()
         
     
 def store(request):
