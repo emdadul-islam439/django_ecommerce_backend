@@ -17,5 +17,4 @@ class Customer(models.Model):
     image = models.ImageField(default='default.png', upload_to="profile_pics")
     
     def __str__(self) -> str:
-        return str(self.user)
-    
+        return f"username = {str(self.user.username)} | email = {str(self.user.email)}"

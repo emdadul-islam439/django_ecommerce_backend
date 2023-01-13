@@ -32,6 +32,12 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return account
 
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__'
+
+
 class AdminUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = AdminUser
@@ -39,6 +45,12 @@ class AdminUserSerializer(serializers.ModelSerializer):
 
 
 class CustomerSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
     class Meta:
         model = Customer
         fields = '__all__'
+    
+    def get_user(self, object):
+        user_info = User.objects.filter(pk=object.user.id).first()
+        serializer = UserSerializer(user_info)
+        return serializer.data
