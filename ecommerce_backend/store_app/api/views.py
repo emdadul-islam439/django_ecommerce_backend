@@ -4,6 +4,10 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView
 from django.contrib import messages
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+
 import datetime
 import json
 from statistics import quantiles
@@ -15,6 +19,21 @@ from background_task_app.enums import SetupStatus
 
 
 # Create your views here.
+class NoOfCartItemsAV(APIView):
+    def get(self, request):
+        try:
+            cart_info = Cart.objects.filter(customer=request.user.customer).first()
+            cart_item_list = cart_info.cartitem_set.all()
+            total_quantity = 0
+            
+            for item in cart_item_list:
+                total_quantity += item.quantity
+            
+            return Response({'no_of_cart_items': f'{total_quantity}'}, status=status.HTTP_404_NOT_FOUND)
+        except:
+            return Response({'Error': 'data not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+
 def store(request):
     cookieData = cartData(request=request)
     products = Product.objects.all()

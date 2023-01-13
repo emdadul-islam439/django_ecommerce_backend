@@ -4,6 +4,7 @@ from django.urls import path
 from store_app.api import views as store_views
 
 urlpatterns = [
+    path('no-of-cart-items/', store_views.NoOfCartItemsAV.as_view(), name = 'no-of-cart-items'),
     path('store/', store_views.store, name = 'store'),
     path('cart/', store_views.cart, name = 'cart'),
     path('checkout/', store_views.checkout, name = 'checkout'),
