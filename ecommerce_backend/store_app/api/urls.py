@@ -7,6 +7,7 @@ urlpatterns = [
     path('no-of-cart-items/', store_views.NoOfCartItemsAV.as_view(), name = 'no-of-cart-items'),
     path('store/', store_views.StoreAV.as_view(), name = 'store'),
     path('cart-page/', store_views.CartPageAV.as_view(), name = 'cart-page'),
+    path('cart-item-details/<int:pk>', store_views.CartItemDetailsGV.as_view(), name = 'cart-item-details'),
     path('checkout/', store_views.checkout, name = 'checkout'),
     path('update-registered-user-cart/', store_views.updateRegisteredUserCart, name = 'update-registered-user-cart'),
     path('update-cookie-cart/', store_views.updateCookieCart, name = 'update-cookie-cart'),

@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save, pre_save, pre_delete
 from django.dispatch import receiver
 
-from store_app.models import Product, Stock, OrderItem, SoldItem, WishListItem
+from store_app.models import Product, Stock, OrderItem, SoldItem, WishListItem, CartItem
 from customer_app.models import Customer
     
 @receiver(post_save, sender = Product)    
@@ -56,3 +56,9 @@ def validate_wishlist_item_creation(sender, instance, **kwargs):
     for wishlist_item in wishlist_item_list:
         if wishlist_item.product.id == instance.product.id:
             raise Exception("This product is already in the customer's wishlist")
+        
+
+@receiver(pre_save, sender=CartItem)
+def validate_cart_item(sender, instance, **kwargs):
+    if instance.quantity <= 0:
+        instance.delete()

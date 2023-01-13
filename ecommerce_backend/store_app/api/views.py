@@ -68,6 +68,12 @@ class CartPageAV(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except:
             return Response({'error': 'data not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class CartItemDetailsGV(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = CartItemSerializer
+    queryset = CartItem.objects.all()
+        
     
 def store(request):
     cookieData = cartData(request=request)
