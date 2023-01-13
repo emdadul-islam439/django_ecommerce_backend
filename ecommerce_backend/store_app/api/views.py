@@ -6,7 +6,7 @@ from django.contrib import messages
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, generics
 
 import datetime
 import json
@@ -14,6 +14,7 @@ from statistics import quantiles
 
 from store_app.utils import cartData, guestOrder, cookieCart, getWishListItems, getCartItemList, getStockInfoList, getProductListFromCartItems
 from store_app.models import Cart, Product, CartItem, ShippingAddress, WishListItem, Order, OrderItem, Stock, PurchasedItem, SoldItem
+from store_app.api.serializers import ProductSerializer, CartItemSerializer, StockSerializer
 from background_task_app.models import EmailSendingTask
 from background_task_app.enums import SetupStatus
 
@@ -32,8 +33,33 @@ class NoOfCartItemsAV(APIView):
             return Response({'no_of_cart_items': f'{total_quantity}'}, status=status.HTTP_404_NOT_FOUND)
         except:
             return Response({'Error': 'data not found'}, status=status.HTTP_404_NOT_FOUND)
-    
 
+
+class StoreAV(APIView):
+    def get(self, request):
+        try:
+            product_with_stock_and_cart_info_list = []
+            product_list = Product.objects.all()
+            cart = Cart.objects.filter(customer=request.user.customer).first()
+
+            for product in product_list:
+                stock_info = Stock.objects.filter(product=product).first()
+                cart_item_info = CartItem.objects.filter(cart=cart, product=product).first()
+                
+                product_with_stock_and_cart_info_list.append({
+                    'product_info': ProductSerializer(product).data, 
+                    'stock_info': StockSerializer(stock_info).data, 
+                    'cart_item_info': CartItemSerializer(cart_item_info).data
+                })
+            # REMEMBER: Respose(exact_dict_object_name, staus=...) gives pretty response
+            # REMEMBER: Respose(f"exact_dict_object_name", status=...) convert the pretty JSON to STRING
+            # REMEMBER: Respose(json.dumps(exact_dict_object_name), status=...) gives awkward string values 
+            #           like "/"product_info/": /"..../"" (adding a slash before all inverted commas)
+            return Response(product_with_stock_and_cart_info_list, status=status.HTTP_200_OK)
+        except:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+    
 def store(request):
     cookieData = cartData(request=request)
     products = Product.objects.all()

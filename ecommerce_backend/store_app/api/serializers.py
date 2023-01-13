@@ -68,6 +68,30 @@ class StockSerializer(serializers.ModelSerializer):
         return serializer.data
 
 
+# TODO: could not use this serializer
+# TODO: because of not finding a way to get 'request' object  
+class ProductWithStockAndCartSerializer(serializers.ModelSerializer):
+    stock_info = serializers.SerializerMethodField()
+    cart_info = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Product
+        fields = '__all__'
+    
+    def get_stock_info(self, object):
+        stock_info = Stock.objects.filter(product=object).first()
+        serializer = StockSerializer(stock_info)
+        return serializer.data
+    
+    # TODO: could not find a way to get 'request' object
+    # TODO: without 'request' object, can't get Cart object's properties
+    # def get_cart_info(self, object):
+        # cart_id = self.request.user.customer.cart.id
+        # item_info = CartItem.objects.filter(cart__id=cart_id, product=object).first()
+        # serializer = CartItemSerializer(item_info)
+        # return serializer.data
+
+
 class WishListItemSerializer(serializers.ModelSerializer):
     stock_info = serializers.SerializerMethodField()
     cart_info = serializers.SerializerMethodField()
