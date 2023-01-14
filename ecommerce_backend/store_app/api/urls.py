@@ -18,5 +18,5 @@ urlpatterns = [
     path('complete-payment/', store_views.completePayment, name='complete-payment'),
     path('create-wishlist-item/', store_views.CreateWishlistItemGV.as_view(), name='create-wishlist-item'),
     path('wishlist-item-details/<int:pk>', store_views.WishlistItemDetailsGV.as_view(), name='wishlist-item-details'),
-    path('product-details/<int:pk>', store_views.ProductDetailView.as_view(), name='producut-details'),
+    path('product-details/<int:pk>', store_views.ProductDetailsGV.as_view(), name='producut-details'),
 ]   

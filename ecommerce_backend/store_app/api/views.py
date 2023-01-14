@@ -131,6 +131,11 @@ class WishlistItemDetailsGV(generics.RetrieveDestroyAPIView):
     serializer_class = WishListItemSerializer
     queryset = WishListItem.objects.all()
         
+
+class ProductDetailsGV(generics.RetrieveAPIView):
+    serializer_class = ProductSerializer
+    queryset = Product.objects.all()
+        
     
 def store(request):
     cookieData = cartData(request=request)
