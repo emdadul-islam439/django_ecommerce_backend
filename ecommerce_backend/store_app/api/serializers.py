@@ -119,7 +119,7 @@ class CartWithItemSerializer(serializers.ModelSerializer):
         total_cost = 0
         for item in cart_item_list:
             if item.is_checked:
-                total_cost += item.get_stock_info.current_selling_price
+                total_cost += (item.get_stock_info.current_selling_price * item.quantity)
         return total_cost
     
     
@@ -150,7 +150,7 @@ class OrderSummarySerializer(serializers.ModelSerializer):
         total_cost = 0
         for item in cart_item_list:
             if item.is_checked:
-                total_cost += item.get_stock_info.current_selling_price
+                total_cost += (item.get_stock_info.current_selling_price * item.quantity)
         return total_cost
         
 
