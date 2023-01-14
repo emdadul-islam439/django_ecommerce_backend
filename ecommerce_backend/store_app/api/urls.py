@@ -14,7 +14,6 @@ urlpatterns = [
     path('shipping-details/<int:pk>', store_views.ShippingDetailsGV.as_view(), name='shipping-details'),
     path('update-registered-user-cart/', store_views.updateRegisteredUserCart, name='update-registered-user-cart'),
     path('update-cookie-cart/', store_views.updateCookieCart, name='update-cookie-cart'),
-    path('update-item/', store_views.updateItem, name='update-item'),
     path('process-order/', store_views.processOrder, name='process-order'),
     path('complete-payment/', store_views.completePayment, name='complete-payment'),
     path('update-wishlist/', store_views.updateWishList, name='update-wishlist'),

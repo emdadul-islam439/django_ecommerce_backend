@@ -211,34 +211,6 @@ def updateCookieCart(request):
     return JsonResponse(data, safe=False)
 
 
-# @csrf_exempt
-def updateItem(request):
-    data = json.loads(request.body)
-    
-    action = data['action']
-    print(f"in UpdateItem()--->    action = {action}")
-    
-    product = Product.objects.get(id=data['productId'])
-    cart, created = Cart.objects.get_or_create(customer=request.user.customer)
-    cartItem, created = CartItem.objects.get_or_create(cart=cart, product=product)
-    
-    if action == 'add':
-        cartItem.quantity += 1
-        response_message = 'Item was ADDED successfully'
-    elif action == 'remove':
-        cartItem.quantity -= 1
-        response_message = 'Item was DELETED successfully'
-    elif action == 'check-uncheck':
-        cartItem.is_checked = not cartItem.is_checked
-        response_message = 'Item was CHECKED/UNCHECKED successfully'
-    
-    cartItem.save(update_fields=['quantity', 'is_checked'])
-    if cartItem.quantity <= 0:
-        cartItem.delete()
-    
-    return JsonResponse(response_message, safe=False)
-
-
 def processOrder(request):
     print('request.body: ', request.body)
     data = json.loads(request.body)
