@@ -14,7 +14,7 @@ from statistics import quantiles
 
 from store_app.utils import cartData, guestOrder, cookieCart, getWishListItems, getCartItemList, getStockInfoList, getProductListFromCartItems
 from store_app.models import Cart, Product, CartItem, ShippingAddress, WishListItem, Order, OrderItem, Stock, PurchasedItem, SoldItem
-from store_app.api.serializers import ProductSerializer, CartItemSerializer, StockSerializer, CartWithItemSerializer, ShippingAddressSerializer, OrderSummarySerializer
+from store_app.api.serializers import ProductSerializer, CartItemSerializer, StockSerializer, CartWithItemSerializer, ShippingAddressSerializer, OrderSummarySerializer, WishListItemSerializer
 from background_task_app.models import EmailSendingTask
 from background_task_app.enums import SetupStatus
 
@@ -115,6 +115,21 @@ class CreateShippingAddressGV(generics.CreateAPIView):
 class ShippingDetailsGV(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ShippingAddressSerializer
     queryset = ShippingAddress.objects.all()
+
+
+class CreateWishlistItemGV(generics.CreateAPIView):
+    serializer_class = WishListItemSerializer
+    
+    def get_queryset(self):
+        return WishListItem.objects.all()
+    
+    def perform_create(self, serializer):
+        serializer.save(customer=self.request.user.customer)
+        
+
+class WishlistItemDetailsGV(generics.RetrieveDestroyAPIView):
+    serializer_class = WishListItemSerializer
+    queryset = WishListItem.objects.all()
         
     
 def store(request):

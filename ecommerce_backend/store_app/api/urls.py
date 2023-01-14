@@ -16,6 +16,7 @@ urlpatterns = [
     path('update-cookie-cart/', store_views.updateCookieCart, name='update-cookie-cart'),
     path('process-order/', store_views.processOrder, name='process-order'),
     path('complete-payment/', store_views.completePayment, name='complete-payment'),
-    path('update-wishlist/', store_views.updateWishList, name='update-wishlist'),
+    path('create-wishlist-item/', store_views.CreateWishlistItemGV.as_view(), name='create-wishlist-item'),
+    path('wishlist-item-details/<int:pk>', store_views.WishlistItemDetailsGV.as_view(), name='wishlist-item-details'),
     path('product-details/<int:pk>', store_views.ProductDetailView.as_view(), name='producut-details'),
 ]   
