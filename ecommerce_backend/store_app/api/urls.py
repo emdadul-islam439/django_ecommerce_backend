@@ -13,7 +13,6 @@ urlpatterns = [
     path('create-shipping-address/', store_views.CreateShippingAddressGV.as_view(), name='create-shipping-address'),
     path('shipping-details/<int:pk>', store_views.ShippingDetailsGV.as_view(), name='shipping-details'),
     path('update-registered-user-cart/', store_views.updateRegisteredUserCart, name='update-registered-user-cart'),
-    path('update-cookie-cart/', store_views.updateCookieCart, name='update-cookie-cart'),
     path('process-order/', store_views.processOrder, name='process-order'),
     path('complete-payment/', store_views.completePayment, name='complete-payment'),
     path('create-wishlist-item/', store_views.CreateWishlistItemGV.as_view(), name='create-wishlist-item'),

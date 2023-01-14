@@ -212,25 +212,6 @@ def updateRegisteredUserCart(request):
     return JsonResponse('OK', safe=False)
 
 
-def updateCookieCart(request):
-    print(f"updateCookieCart---> request.body={request.body}")
-    data = json.loads(request.body)
-    cartItems = data['cart']
-    print(f"cartItems = {cartItems}")
-    
-    for itemIdStr in cartItems:
-        print(f"itemIdStr = {itemIdStr}......  value = {cartItems[itemIdStr]}")
-        product = Product.objects.get(id=itemIdStr)
-        stockInfo = Stock.objects.filter(product=product).first()
-        if stockInfo.effective_order_limit == 0:
-            cartItems[itemIdStr]['is_checked'] = False
-        else:
-            cartItems[itemIdStr]['quantity'] = min(stockInfo.effective_order_limit, cartItems[itemIdStr]['quantity'])
-    
-    data['cart'] = cartItems
-    return JsonResponse(data, safe=False)
-
-
 def processOrder(request):
     print('request.body: ', request.body)
     data = json.loads(request.body)
