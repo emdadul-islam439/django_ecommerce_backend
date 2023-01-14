@@ -117,6 +117,26 @@ class ShippingDetailsGV(generics.RetrieveUpdateDestroyAPIView):
     queryset = ShippingAddress.objects.all()
 
 
+class UpdatedCartInfo(APIView):
+    def get(self, request):
+        try:
+            cart, created = Cart.objects.get_or_create(id=request.user.customer.cart.id)
+            cartItems = CartItem.objects.filter(cart=cart)
+            
+            for item in cartItems:
+                stockInfo = Stock.objects.filter(product=item.product).first()
+                if stockInfo.effective_order_limit == 0:
+                    item.is_checked = False
+                else:
+                    item.quantity = min(stockInfo.effective_order_limit, item.quantity)
+                item.save(update_fields=['is_checked', 'quantity'])
+            
+            serializer = CartWithItemSerializer(cart)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except:
+            return Response({'error': 'data not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
 class CreateWishlistItemGV(generics.CreateAPIView):
     serializer_class = WishListItemSerializer
     
@@ -192,24 +212,6 @@ def checkout(request):
     if not request.user.is_authenticated:
         messages.success(request, "You can now order from us without Login into the site!")
     return render(request, 'store/checkout.html', context)
-
-
-def updateRegisteredUserCart(request):
-    print(f"updateRegisteredUserCart---> request.body={request.body}")
-    data = json.loads(request.body)
-    print(f"cartId = {data['cartId']} ")
-    
-    cart, created = Cart.objects.get_or_create(id=data['cartId'])
-    cartItems = CartItem.objects.filter(cart=cart)
-    
-    for item in cartItems:
-        stockInfo = Stock.objects.filter(product=item.product).first()
-        if stockInfo.effective_order_limit == 0:
-            item.is_checked = False
-        else:
-            item.quantity = min(stockInfo.effective_order_limit, item.quantity)
-        item.save(update_fields=['is_checked', 'quantity'])
-    return JsonResponse('OK', safe=False)
 
 
 def processOrder(request):
