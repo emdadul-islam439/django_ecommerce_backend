@@ -14,7 +14,7 @@ from statistics import quantiles
 
 from store_app.utils import cartData, guestOrder, cookieCart, getWishListItems, getCartItemList, getStockInfoList, getProductListFromCartItems
 from store_app.models import Cart, Product, CartItem, ShippingAddress, WishListItem, Order, OrderItem, Stock, PurchasedItem, SoldItem
-from store_app.api.serializers import ProductSerializer, CartItemSerializer, StockSerializer, CartWithItemSerializer, ShippingAddressSerializer, OrderSummarySerializer, WishListItemSerializer
+from store_app.api.serializers import ProductSerializer, CartItemSerializer, StockSerializer, CartWithItemSerializer, ShippingAddressSerializer, OrderSummarySerializer, WishListItemSerializer, OrderSerializer, OrderWithItemSerializer
 from background_task_app.models import EmailSendingTask
 from background_task_app.enums import SetupStatus
 
@@ -30,9 +30,9 @@ class NoOfCartItemsAV(APIView):
             for item in cart_item_list:
                 total_quantity += item.quantity
             
-            return Response({'no_of_cart_items': f'{total_quantity}'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'no_of_cart_items': f'{total_quantity}'}, status=status.HTTP_200_OK)
         except:
-            return Response({'Error': 'data not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'error occurred'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class StoreAV(APIView):
@@ -57,7 +57,7 @@ class StoreAV(APIView):
             #           like "/"product_info/": /"..../"" (adding a slash before all inverted commas)
             return Response(product_with_stock_and_cart_info_list, status=status.HTTP_200_OK)
         except:
-            return Response({'error': 'data not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'error occurred'}, status=status.HTTP_400_BAD_REQUEST)
         
 
 class CartPageAV(APIView):
@@ -67,7 +67,7 @@ class CartPageAV(APIView):
             serializer = CartWithItemSerializer(cart)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except:
-            return Response({'error': 'data not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'error occurred'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CreateCartItemGV(generics.CreateAPIView):
@@ -99,7 +99,7 @@ class CheckoutPageAV(APIView):
             }
             return Response(checkout_page_info, status=status.HTTP_200_OK)
         except:
-            return Response({'error': 'data not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'error occurred'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CreateShippingAddressGV(generics.CreateAPIView):
@@ -134,7 +134,28 @@ class UpdatedCartInfo(APIView):
             serializer = CartWithItemSerializer(cart)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except:
-            return Response({'error': 'data not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'error occurred'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CompletePaymentAV(APIView):
+    def put(self, request, pk):
+        try:
+            order, created = Order.objects.get_or_create(id=pk)
+            
+            if order.order_status == 5:
+                return Response({'error': 'order is already cancelled'}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                order.order_status = 1
+                order.save(update_fields=['order_status'])
+                
+                emailSendingTask = EmailSendingTask.objects.get(order=order)
+                emailSendingTask.status = SetupStatus.disabled
+                emailSendingTask.save(update_fields=['status'])
+                
+                serializer = OrderSerializer(order)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+        except:
+            return Response({'error': 'error occurred'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CreateWishlistItemGV(generics.CreateAPIView):
@@ -214,78 +235,61 @@ def checkout(request):
     return render(request, 'store/checkout.html', context)
 
 
-def processOrder(request):
-    print('request.body: ', request.body)
-    data = json.loads(request.body)
-    print(f"data : {data}")
-    
-    transaction_id = datetime.datetime.now().timestamp()
-    
-    if request.user.is_authenticated:
-        customer = request.user.customer
-        cart, created = Cart.objects.get_or_create(customer=customer)
-    else:
-        customer, cart = guestOrder(request=request, data=data)
-        
-    total = float(data['form']['total'])
-    
-    if total == cart.get_cart_total:
-        now_time = datetime.datetime.now()
-        print(f'now_time = {now_time}  type(now_time) = {type(now_time)}')
-        
-        order = Order.objects.create(
-            customer=customer,
-            transaction_id=transaction_id
-        )
-        EmailSendingTask.objects.create(
-            order=order,
-        )
-        
-        cartItems = CartItem.objects.filter(cart=cart, is_checked=True)
-        for item in cartItems:
-            OrderItem.objects.create(
-                product=item.product,
-                order=order,
-                quantity=item.quantity,
-            )
-            item.delete()
-    
-    if cart.shipping == True:
-        shipping_address = ShippingAddress.objects.create( 
-            customer=customer,
-            order=order,
-            address=data['shipping']['address'],
-            city=data['shipping']['city'],
-            state=data['shipping']['state'],
-            zipcode=data['shipping']['zipcode'],
-        )
-        order.is_shipped = True
-        order.shipping_address = shipping_address
-        order.save(update_fields=['is_shipped', 'shipping_address'])
-        
-    return JsonResponse(f'{order.id}', safe=False)
-
-
-def completePayment(request):
-    print(f'in completePayment():  data = {request.body}')
-    data = json.loads(request.body)
-    print(f'data after json-decode = {data}')
-    
-    order, created = Order.objects.get_or_create(id=data['order_id'])
-    
-    if order.order_status == 5:
-        return_message = 'Order is already cancelled!'
-    else:
-        order.order_status = 1
-        order.save(update_fields=['order_status'])
-        
-        emailSendingTask = EmailSendingTask.objects.get(order=order)
-        emailSendingTask.status = SetupStatus.disabled
-        emailSendingTask.save(update_fields=['status'])
-        
-        return_message = 'success!'
-        
-    return JsonResponse(return_message, safe=False) 
+class ProcessOrderAV(APIView):
+    def post(self, request):
+        try:
+            print('request.body: ', request.body)
+            data = json.loads(request.body)
+            print(f"data : {data}")
+            
+            transaction_id = datetime.datetime.now().timestamp()
+            
+            if request.user.is_authenticated:
+                customer = request.user.customer
+                cart, created = Cart.objects.get_or_create(customer=customer)
+            else:
+                customer, cart = guestOrder(request=request, data=data)
+                
+            total = float(data['form']['total'])
+            
+            if total == cart.get_cart_total:
+                now_time = datetime.datetime.now()
+                print(f'now_time = {now_time}  type(now_time) = {type(now_time)}')
+                
+                order = Order.objects.create(
+                    customer=customer,
+                    transaction_id=transaction_id
+                )
+                EmailSendingTask.objects.create(
+                    order=order,
+                )
+                
+                cartItems = CartItem.objects.filter(cart=cart, is_checked=True)
+                for item in cartItems:
+                    OrderItem.objects.create(
+                        product=item.product,
+                        order=order,
+                        quantity=item.quantity,
+                    )
+                    item.delete()
+            
+            if cart.shipping == True:
+                shipping_address = ShippingAddress.objects.create( 
+                    customer=customer,
+                    order=order,
+                    address=data['shipping']['address'],
+                    city=data['shipping']['city'],
+                    state=data['shipping']['state'],
+                    zipcode=data['shipping']['zipcode'],
+                )
+                order.is_shipped = True
+                order.shipping_address = shipping_address
+                order.save(update_fields=['is_shipped', 'shipping_address'])
+                
+            serializer = OrderWithItemSerializer(order)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except:
+            return Response({'error': 'error occurred'}, status=status.HTTP_400_BAD_REQUEST)
     
 
 def updateWishList(request):
