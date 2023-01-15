@@ -58,7 +58,7 @@ class Cart(models.Model):
     transaction_id = models.CharField(max_length=100, null=True)
     
     def __str__(self) -> str:
-        return f'Cart ID: {self.id}    -   Customer: {self.customer.user}'
+        return f'Cart ID: {self.id}    -   Customer: {self.customer}'
     
     @property
     def shipping(self):
@@ -90,7 +90,7 @@ class Cart(models.Model):
 class CartItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)
     cart = models.ForeignKey(Cart, on_delete=models.SET_NULL, null=True, blank=True)
-    quantity = models.IntegerField(default=0, null=True, blank=True)
+    quantity = models.IntegerField(default=1, null=True, blank=True)
     is_checked = models.BooleanField(default=True)
     date_added = models.DateTimeField(auto_now_add=True)
     
@@ -189,7 +189,7 @@ class OrderItem(models.Model):
     
     @property
     def get_total(self):
-        return self.quantity * self.product.price
+        return self.quantity * self.product.stock.current_selling_price
     
     
 class WishListItem(models.Model):

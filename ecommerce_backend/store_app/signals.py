@@ -16,12 +16,15 @@ def create_sold_item(sender, instance, **kwargs):
     print(f'IN CREATE-SOLD_ITEM...... sender = {sender} instance = {instance} kwargs = {kwargs}')
     
     stockInfo = Stock.objects.get(product=instance.product)
+    print(f"stockInfo = {stockInfo}")
     # solving corner-cases
     if stockInfo.no_of_item_in_stock < instance.quantity:
+        print(f"IN IF>>>>>> THROWING EXCEPTION FOR: no_of_stock_item = {stockInfo.no_of_item_in_stock} < instance.quantity = {instance.quantity}")
         raise Exception(f"There is low item quantity of the product {instance.product} in stock.")
     
     # if OrderItem object is being created for first time
     if instance._state.adding:
+        print("IN IF(instance._state.adding>>>>>>>>>>>>>)")
         SoldItem.objects.create(
             order=instance.order,
             product=instance.product,
@@ -30,10 +33,13 @@ def create_sold_item(sender, instance, **kwargs):
             quantity=instance.quantity,
             discount=stockInfo.current_discount
         )
+        print("IN IF(instance._state.adding>>>>>>>>>>>>> FINISHED creating SOLD-ITEM)")
     else: # OrderItem is already created, now it's being updated.
+        print("IN ELSE>>>>>>>>>>>>>)")
         soldItemInfo = SoldItem.objects.filter(order=instance.order, product=instance.product).first()
         soldItemInfo.quantity = instance.quantity
         soldItemInfo.save(update_fields=['quantity'])
+        print("IN ELSE(instance._state.adding>>>>>>>>>>>>> FINISHED saving SOLD-ITEM-INFO)")
     
 @receiver(pre_delete, sender = OrderItem)
 def delete_sold_item(sender, instance, **kwargs):
@@ -61,4 +67,4 @@ def validate_wishlist_item_creation(sender, instance, **kwargs):
 @receiver(pre_save, sender=CartItem)
 def validate_cart_item(sender, instance, **kwargs):
     if instance.quantity <= 0:
-        instance.delete()
+        raise Exception('cannot save cart-item with quantity<=0')

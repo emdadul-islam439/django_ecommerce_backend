@@ -6,7 +6,17 @@ from customer_app.models import Customer
 
 def cookieCart(request):
     try:
-        temp_cart = json.loads(request.COOKIES['cart'])
+        # OLD: temp_cart = json.loads(request.COOKIES['cart'])
+        if str(request.body) != "b''":
+            data = json.loads(request.body)
+        else:
+            data ={}
+        print(f"data = {data}")
+        
+        if 'cart' in data:
+            temp_cart = data['cart']
+        else:
+            temp_cart = json.loads(request.COOKIES['cart'])
     except:
         temp_cart = {}
             
@@ -80,26 +90,46 @@ def guestOrder(request, data):
     name = data['form']['name']
     email = data['form']['email']
     
+    print(f"creating Customer with name = {name} and email = {email}")
     customer, created = Customer.objects.get_or_create(
         email=email
     )
-    customer.name = name 
-    customer.save(update_fields=['name'])
+    customer.first_name = name 
+    customer.last_name = name
+    customer.save(update_fields=['first_name', 'last_name'])
+    print(f"Customer is created with name={name} and email={email}")
     
-    cart = Cart.objects.create(customer=customer)
+    print(f"creating cart with customer={customer}")
+    cart, created = Cart.objects.get_or_create(customer=customer)
     
+    print(f"Cart={cart} is created with the Customer={customer}\ngetting COOKIE-DATA = COOKIE-CART(request=request)")
     cookieData = cookieCart(request=request)
+    
+    print(f"returned from cookieCart(...), cookieData = {cookieData}")
     items = cookieData['items']
+    print(f"items = {items} || starting to create new Cart-Items")
     for item in items:
+        print(f"\nNEW LOOP STARTED, item = {item}")
         if item['is_checked'] == False: 
+            print(f"item[is_checked] == False, CONTINUE;")
             continue
         
         product = Product.objects.get(id=item['product']['id'])
-        cartItem = CartItem.objects.create(
+        print(f"product={product}")
+        
+        # using 'get_or_create(..)' for tackling a corner-case
+        # CORNER-CASE: will be multiple item created in some cases
+        #            : Example: if some-how this function is called twice, 
+        #            : then same cartItem wil be created twice
+        cartItem, created = CartItem.objects.get_or_create(
             product=product,
-            cart=cart,
-            quantity=item['quantity']
+            cart=cart
         )
+        print(f"cartItem is created/got, is_created={created}")
+        cartItem.quantity=item['quantity']
+        print(f"updated carItem.quantity")
+        cartItem.save(update_fields=['quantity'])
+        print(f"\nFINISHED LOOP, item = {item}")
 
     return customer, cart
 

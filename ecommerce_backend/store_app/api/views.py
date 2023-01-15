@@ -140,62 +140,81 @@ class UpdatedCartInfo(APIView):
 class ProcessOrderAV(APIView):
     def post(self, request):
         try:
-            print('request.body: ', request.body)
+            print('ProcessOrderAV: request.body: ', request.body)
             data = json.loads(request.body)
-            print(f"data : {data}")
+            print(f"ProcessOrderAV: {data}")
             
             transaction_id = datetime.datetime.now().timestamp()
             
             if request.user.is_authenticated:
+                print(f"in IF(request.user.is_authenticated)>>>>>>>>>>>>>>>>>>>>>")
                 customer = request.user.customer
                 cart, created = Cart.objects.get_or_create(customer=customer)
             else:
+                print(f"in ELSE(request.user.is_authenticated)>>>>>>>>>>>>>>>>>>>>>")
                 customer, cart = guestOrder(request=request, data=data)
-                
-            total = float(data['form']['total'])
+            print(f"got customer and cart objects....................")
             
-            if total == cart.get_cart_total:
-                now_time = datetime.datetime.now()
-                print(f'now_time = {now_time}  type(now_time) = {type(now_time)}')
-                
-                order = Order.objects.create(
-                    customer=customer,
-                    transaction_id=transaction_id
-                )
-                EmailSendingTask.objects.create(
+            print(f"CUSTOMER = {customer} and CART = {cart}")
+            cartItems = CartItem.objects.filter(cart=cart, is_checked=True)
+            for item in cartItems:
+                stockItem = Stock.objects.filter(product=item.product).first()
+                if stockItem.no_of_item_in_stock < item.quantity:
+                    return Response({'error': f'there is less quantity available in Stock for product = {item.product.name}'}, status=status.HTTP_400_BAD_REQUEST) 
+            
+            now_time = datetime.datetime.now()
+            print(f'now_time = {now_time}  type(now_time) = {type(now_time)}')
+            order = Order.objects.create(
+                customer=customer,
+                transaction_id=transaction_id
+            )
+            EmailSendingTask.objects.create(
+                order=order,
+            )
+            
+            print(f"PROCESS-ORDER: CREATING ORDER-ITEMS>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+            for item in cartItems:
+                # using 'get_or_create(..)' for tackling a corner-case
+                # CORNER-CASE: will be multiple item created in some cases
+                #            : Example: if some-how this function is called twice, 
+                #            : then same orderItem wil be created twice
+                orderItem, created = OrderItem.objects.get_or_create(
+                    product=item.product,
                     order=order,
                 )
-                
-                cartItems = CartItem.objects.filter(cart=cart, is_checked=True)
-                for item in cartItems:
-                    OrderItem.objects.create(
-                        product=item.product,
-                        order=order,
-                        quantity=item.quantity,
-                    )
-                    item.delete()
+                print(f"created/got Order-item = {orderItem} from cart-item = {item}")
+                orderItem.quantity = item.quantity
+                print(f"updated quantity of Order-item = {orderItem}")
+                orderItem.save(update_fields=['quantity'])
+                print(f"saved quantity of Order-item = {orderItem}")
+                item.delete()
+                print(f"DELETED CART-ITEM")
             
+            print(f"PROCESS-ORDER: CREATING SHIPPING-ADDRESS>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
             if cart.shipping == True:
-                shipping_address = ShippingAddress.objects.create( 
+                shipping_address, created = ShippingAddress.objects.get_or_create( 
                     customer=customer,
-                    order=order,
                     address=data['shipping']['address'],
                     city=data['shipping']['city'],
                     state=data['shipping']['state'],
                     zipcode=data['shipping']['zipcode'],
                 )
+                print(f"created/got shipping address = {shipping_address}")
                 order.is_shipped = True
                 order.shipping_address = shipping_address
+                print(f"modified order.is_shipped and order.shipping_address value")
                 order.save(update_fields=['is_shipped', 'shipping_address'])
+            print(f"PROCESS-ORDER: FINISHED CREATING SHIPPING-ADDRESS>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
                 
             serializer = OrderWithItemSerializer(order)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        except:
+        except Exception as e:
+            print(f"ProcessOrderAV: IN EXCEPTION ----------------->>>>>>>>>>>>> e = {e}")
             return Response({'error': 'error occurred'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CompletePaymentAV(APIView):
-    def put(self, request, pk):
+    def post(self, request, pk):
         try:
             order, created = Order.objects.get_or_create(id=pk)
             

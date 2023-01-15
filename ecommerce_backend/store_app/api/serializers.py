@@ -179,7 +179,7 @@ class OrderWithItemSerializer(serializers.ModelSerializer):
         order_item_list = OrderItem.objects.filter(order=object)
         total_cost = 0
         for item in order_item_list:
-            total_cost += (item.get_stock_info.current_selling_price * item.quantity)
+            total_cost += item.get_total
         return total_cost
         
 

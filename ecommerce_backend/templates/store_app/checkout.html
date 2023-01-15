@@ -146,7 +146,8 @@
                 },
                 body: JSON.stringify({
                     'form': userFormData,
-                    'shipping': shippingInfo
+                    'shipping': shippingInfo,
+                    'cart': cart
                 }),
             })
             .then((response) => response.json())
